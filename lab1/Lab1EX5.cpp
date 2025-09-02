@@ -24,12 +24,14 @@ using namespace std;
 
 /* signal pin of the servo*/
 #define servoPin 1
+#define buttonPin 4
 
 int adc;
 int pot_value;
+bool buttonPressed = false;
 
 //Specific a certain rotation angle (0-180) for the servo
-void servoWrite(int pin, int angle){ 
+void servoWrite(int pin, int angle) { 
     long time = 0;
     time = 10 * (0.5 + ((long)angle/90.0)); /* map the desired angle to time*/
     softPwmWrite(pin,time);   
@@ -37,14 +39,16 @@ void servoWrite(int pin, int angle){
 
 
 /* Sefind your callback function to handout the pressing button interrupts. */
-void press_button()
-{
-
-
+void press_button() {
+    if(buttonPressed) {
+        buttonPressed = false;
+    } else {
+        buttonPressed = true;
+    }
 }
 
 //This function is used to read data from ADS1015
-int adcVal(){
+int adcVal() {
 
 	uint16_t low, high, value;
 	// Refer to the supplemental documents to find the parameters. In this lab, the ADS1015
@@ -66,19 +70,15 @@ int adcVal(){
 	return value;
 }
 
-int main(void)
-{
+int main(void) {
 
     wiringPiSetup();    
     softPwmCreate(servoPin,  0, 200);
 
     /* Use wiringPiISR() to setup your interrupts. Refer to document WiringPi_ Interrupts.pdf. */
+    wiringPiISR(buttonPin, INT_EDGE_FALLING, &press_button);
 
-
-
-
-    while(1){
-
+    while(1) {
         /* read ADS1015 value */
         pot_value = adcVal();
 
@@ -87,11 +87,13 @@ int main(void)
         std::cout << servo_value << std::endl;
 
         /* use the angle to control the servo motor*/
-        servoWrite(servoPin, servo_value);
-
+        if(!buttonPressed) {
+            servoWrite(servoPin, servo_value);
+        } else {
+            servoWrite(servoPin, 180 - servo_value);
+        }
 
         usleep(100000);
-
     }
     return 0;
 }
