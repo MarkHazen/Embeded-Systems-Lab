@@ -16,7 +16,11 @@ int main()
 	wiringPiSetup();
 
 	// Set the pin number for the sensor trigger
-	int triggerPin = 0; // Replace 0 with the actual GPIO pin number
+	int triggerPin = 1; // Replace 0 with the actual GPIO pin number
+	
+	int pulse_width = 0;
+
+	const int MAX_ECHO_TIME = 18500;
 
 	while (true)
 	{
@@ -44,12 +48,12 @@ int main()
 
 		// 1. define a varable to get the current time t1. Refer to "High_Resolution_Clock_Reference.pdf" for more information
 		auto t1 = high_resolution_clock::now();
-		while (digitalRead(sig_pin))
+		while (digitalRead(triggerPin))
 		{ /*read signal pin, the stay is the loop when the signal pin is high*/
 			// 2. defind a varable to get the current time t2.
 			auto t2 = high_resolution_clock::now();
 			// 3. calculate the time duration: t2 - t1
-			auto pulse_width = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+			pulse_width = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
 			// 4. if the duration is larger than the Pulse Maxium 18.5ms, break the loop.
 			if (pulse_width >= MAX_ECHO_TIME)
 			{
@@ -58,11 +62,11 @@ int main()
 		}
 
 		/*Calculate the distance by using the time duration that you just obtained.*/ // Speed of sound is 340m/s
-		double distance = (pulse_width / 1000000.0) * 340.0 / 2.0;					  // in meters
+		double distance = (pulse_width * 340.0 / 1000000)/ 2.0;					  // in meters
 		distance = distance * 100.0;												  // convert to cm
 		/*Print the distance.*/
 		cout << "Distance: " << distance << " cm" << endl;
 		/*Delay before next measurement. The actual delay may be a little longer than what is shown is the datasheet.*/
-		usleep(250); // 60 ms delay
+		usleep(60000); // 60 ms delay
 	}
 }

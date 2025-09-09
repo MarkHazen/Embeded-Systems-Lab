@@ -30,6 +30,7 @@ float measured_value = 0.0f; // sonar reading
 int adc;
 float PID_p, PID_d, PID_total, PID_i = 0;
 int time_inter_ms = 25; // time interval, you can use different time interval
+const int MAX_ECHO_TIME = 18500;
 
 /*set your pin numbers and pid values*/
 int motor_pin = 26;
@@ -38,13 +39,15 @@ float kp = 5;
 float ki = 0.001;
 float kd = 2;
 
+int pulse_width = 0;
+
 int main()
 {
     wiringPiSetup();
     adc = wiringPiI2CSetup(0x48);
 
     /*Set the pinMode (fan pin)*/
-    pinMode(motor_pin, OUTPUT);
+    pinMode(motor_pin, PWM_OUTPUT);
 
     // This part is to set a system timer, the function "sigroutine" will be triggered
     // every time_inter_ms milliseconds.
@@ -98,61 +101,52 @@ void PID(float kp, float ki, float kd)
 
 /* use a sonar sensor to measure the position of the Ping-Pang ball. you may reuse
 your code in EX1.*/
-float read_sonar() int main()
-{
-    // Set up wiringPi
-    wiringPiSetup();
+float read_sonar() {
+    /*Set the pinMode to output and generate a LOW-HIGH-LOW signal using "digitalWrite" to trigger the sensor.
+    Use a 2 us delay between a LOW-HIGH and then a 5 us delay between HIGH-LOW. You can use
+    the function "usleep" to set the delay. The unit of usleep is microsecond. */
 
-    // Set the pin number for the sensor trigger
-    int triggerPin = 0; // Replace 0 with the actual GPIO pin number
+    // Set the pinMode to output
+    pinMode(sonar_pin, OUTPUT);
 
-    while (true)
-    {
-        /*Set the pinMode to output and generate a LOW-HIGH-LOW signal using "digitalWrite" to trigger the sensor.
-        Use a 2 us delay between a LOW-HIGH and then a 5 us delay between HIGH-LOW. You can use
-        the function "usleep" to set the delay. The unit of usleep is microsecond. */
+    // Generate a LOW-HIGH-LOW signal
+    digitalWrite(sonar_pin, LOW);
+    usleep(2); // 2 microseconds delay
+    digitalWrite(sonar_pin, HIGH);
+    usleep(5); // 5 microseconds delay
+    digitalWrite(sonar_pin, LOW);
 
-        // Set the pinMode to output
-        pinMode(triggerPin, OUTPUT);
+    /*Echo holdoff delay 750 us*/
+    usleep(750);
 
-        // Generate a LOW-HIGH-LOW signal
-        digitalWrite(triggerPin, LOW);
-        usleep(2); // 2 microseconds delay
-        digitalWrite(triggerPin, HIGH);
-        usleep(5); // 5 microseconds delay
-        digitalWrite(triggerPin, LOW);
+    /*Switch the pinMode to input*/
+    pinMode(sonar_pin, INPUT);
 
-        /*Echo holdoff delay 750 us*/
-        usleep(750);
+    /*Get the time it takes for signal to leave sensor and come back.*/
 
-        /*Switch the pinMode to input*/
-        pinMode(triggerPin, INPUT);
-
-        /*Get the time it takes for signal to leave sensor and come back.*/
-
-        // 1. define a varable to get the current time t1. Refer to "High_Resolution_Clock_Reference.pdf" for more information
-        auto t1 = high_resolution_clock::now();
-        while (digitalRead(sig_pin))
-        { /*read signal pin, the stay is the loop when the signal pin is high*/
-            // 2. defind a varable to get the current time t2.
-            auto t2 = high_resolution_clock::now();
-            // 3. calculate the time duration: t2 - t1
-            auto pulse_width = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
-            // 4. if the duration is larger than the Pulse Maxium 18.5ms, break the loop.
-            if (pulse_width >= MAX_ECHO_TIME)
-            {
-                break;
-            }
+    // 1. define a varable to get the current time t1. Refer to "High_Resolution_Clock_Reference.pdf" for more information
+    auto t1 = high_resolution_clock::now();
+    while (digitalRead(sonar_pin))
+    { /*read signal pin, the stay is the loop when the signal pin is high*/
+        // 2. defind a varable to get the current time t2.
+        auto t2 = high_resolution_clock::now();
+        // 3. calculate the time duration: t2 - t1
+        pulse_width = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+        // 4. if the duration is larger than the Pulse Maxium 18.5ms, break the loop.
+        if (pulse_width >= MAX_ECHO_TIME)
+        {
+            break;
         }
-
-        /*Calculate the distance by using the time duration that you just obtained.*/ // Speed of sound is 340m/s
-        double distance = (pulse_width / 1000000.0) * 340.0 / 2.0;                    // in meters
-        distance = distance * 100.0;                                                  // convert to cm
-        /*Print the distance.*/
-        cout << "Distance: " << distance << " cm" << endl;
-        /*Delay before next measurement. The actual delay may be a little longer than what is shown is the datasheet.*/
-        usleep(250); // 60 ms delay
     }
+
+    /*Calculate the distance by using the time duration that you just obtained.*/ // Speed of sound is 340m/s
+    double distance = (pulse_width * 340.0 / 1000000)/ 2.0;					  // in meters
+    distance = distance * 100.0;												  // convert to cm
+    /*Print the distance.*/
+    cout << "Distance: " << distance << " cm" << endl;
+    return 0;
+    /*Delay before next measurement. The actual delay may be a little longer than what is shown is the datasheet.*/
+    usleep(60000); // 60 ms delay
 }
 
 float read_potentionmeter()
@@ -165,13 +159,16 @@ float read_potentionmeter()
         data = adcVal();
         sum += data;
     }
+    
     data = sum / buff;
     if (data > 1800)
         data = 0;
+    
     double v;
     v = (data / 2047.0) * 6.144; // fs=6.144
-    // int dis = data*100/1742;
     float dis = data * 100 / 1742;
+    
+    //limits
     if (dis < 5)
         dis = 5;
     if (dis > 90)
