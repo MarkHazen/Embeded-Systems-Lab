@@ -35,9 +35,9 @@ const int MAX_ECHO_TIME = 18500;
 /*set your pin numbers and pid values*/
 int motor_pin = 26;
 int sonar_pin = 1;
-float kp = 5;
+float kp = 60;
 float ki = 0.001;
-float kd = 2;
+float kd = 15000;
 
 int pulse_width = 0;
 
@@ -66,7 +66,7 @@ int main()
         cout << "PID_i: " << PID_i << endl;
         cout << "PID_d: " << PID_d << endl;
         cout << "PID_total: " << PID_total << endl;
-        delay(20);
+        delay(40);
     }
 }
 
@@ -85,7 +85,7 @@ void PID(float kp, float ki, float kd)
     /*read the measured position/distance of the ball*/
     measured_value = read_sonar();
     /*calculate the distance error between the obj and measured distance */
-    distance_error = obj_value - measured_value;
+    distance_error = measured_value - obj_value;
     /*calculate the proportional, integral and derivative output */
     PID_p = kp * distance_error;
     PID_i = PID_i + (ki * distance_error * time_inter_ms);
@@ -94,6 +94,9 @@ void PID(float kp, float ki, float kd)
 
     /*assign distance_error to distance_previous_error*/
     distance_previous_error = distance_error;
+
+    if (PID_total < 0) PID_total = 0;
+    if (PID_total > 1024) PID_total = 1024;
 
     /*use PID_total to control your fan*/
     pwmWrite(motor_pin, int(PID_total));
@@ -132,6 +135,7 @@ float read_sonar() {
         auto t2 = high_resolution_clock::now();
         // 3. calculate the time duration: t2 - t1
         pulse_width = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+        //cout << "1" << endl;
         // 4. if the duration is larger than the Pulse Maxium 18.5ms, break the loop.
         if (pulse_width >= MAX_ECHO_TIME)
         {
@@ -144,7 +148,7 @@ float read_sonar() {
     distance = distance * 100.0;												  // convert to cm
     /*Print the distance.*/
     cout << "Distance: " << distance << " cm" << endl;
-    return 0;
+    return distance;
     /*Delay before next measurement. The actual delay may be a little longer than what is shown is the datasheet.*/
     usleep(60000); // 60 ms delay
 }
