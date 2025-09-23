@@ -14,7 +14,7 @@ int main(){
 	wiringPiSetup();
 
 	kobuki = serialOpen("/dev/kobuki", 115200);
-	if(kobuki == 1) std::cout << "Serial port opened" >> std::endl;
+	if(kobuki == 1) std::cout << "Serial port opened" << std::endl;
 	
 	//The Kobuki accepts data packets at a rate of 20 ms.
 	//To continually move, data needs to be sent continuously. Therefore, 
@@ -79,16 +79,14 @@ void movement(int sp, int r){
 	for (unsigned int i = 2; i < 9; i++)
 		checksum ^= packet[i];
 
+	
+
 	/*Send the data (Byte 0 - Byte 8 and checksum) to Kobuki using serialPutchar (kobuki, );*/
-	serialPutchar(kobuki, b_0);
-	serialPutchar(kobuki, b_1);
-	serialPutchar(kobuki, b_2);
-	serialPutchar(kobuki, b_3);
-	serialPutchar(kobuki, b_4);
-	serialPutchar(kobuki, b_5);
-	serialPutchar(kobuki, b_6);
-	serialPutchar(kobuki, b_7);
-	serialPutchar(kobuki, b_8);
+	for(int i = 0; i < sizeof(packet); i++) {
+		serialPutchar(kobuki, packet[i]);
+	}
+
+	// serialPutchar(kobuki, packet);
 	serialPutchar(kobuki, checksum);
 
 	/*Pause the script so the data send rate is the
