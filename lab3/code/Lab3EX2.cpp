@@ -12,6 +12,8 @@ void movement(int, int);
 int kobuki;
 void stopKobuki();
 
+bool hasPressed = false;
+
 int main(){
 	wiringPiSetup();
 	kobuki = serialOpen("/dev/kobuki", 115200);
@@ -47,22 +49,6 @@ int main(){
 				/*Interpret the joystick input and use that input to move the Kobuki*/
 				if (event.value == 1){ // on button press
 					switch (event.number){
-					case 12:			  // up
-						movement(250, 0); // forward
-						break;
-					case 13:			   // Down
-						movement(-200, 0); // backward
-						break;
-					case 14:			   // Left
-						movement(200, +1); // rotate CCW
-						usleep(1150000);   // ~90 turn Tweak Timing
-						stopKobuki();
-						break;
-					case 15:			   // Right
-						movement(200, -1); // rotate CW
-						usleep(1150000);   // Tweak Timing
-						stopKobuki();
-						break;
 					case 7: // Start
 						stopKobuki();
 						break;
@@ -89,14 +75,34 @@ int main(){
 			} 
 			if (event.number == 6) {       // horizontal axis
 				if (event.value < 0) { 
-					movement(200,+1); 
-					usleep(1150000); 
-					stopKobuki(); }
+					movement(200/2,1);
+				}
 				if (event.value > 0) {
-					movement(200,-1); 
-					usleep(1150000); 
-					stopKobuki(); }
+					movement(200/2,-1);
+				}
 			}
+
+			int speed = 0;
+			int radius = 0;
+
+			if(event.number == 1) {
+				if(abs(event.value) < 1000)
+					speed = -event.value/100;
+				else speed = 0;
+			}
+
+			if(event.number == 3) {
+				if(speed == 0) {
+					radius = 1;
+					speed = event.value/100;
+				}
+				else if(speed != 0){
+
+				}
+
+			}
+
+			movement(-event.value/50, radius);
 		}
 	}
 	return 0;
@@ -122,18 +128,16 @@ void movement(int sp, int r){
 		checksum ^= packet[i];
 
 	/*Send the data (Byte 0 - Byte 8 and checksum) to Kobuki using serialPutchar (kobuki, );*/
-	serialPutchar(kobuki, b_0);
-	serialPutchar(kobuki, b_1);
-	serialPutchar(kobuki, b_2);
-	serialPutchar(kobuki, b_3);
-	serialPutchar(kobuki, b_4);
-	serialPutchar(kobuki, b_5);
-	serialPutchar(kobuki, b_6);
-	serialPutchar(kobuki, b_7);
-	serialPutchar(kobuki, b_8);
+	for(int i = 0; i <= sizeof(packet); i++) {
+		serialPutchar(kobuki, packet[i]);
+	}
+
+	// serialPutchar(kobuki, packet);
 	serialPutchar(kobuki, checksum);
+
 	/*Pause the script so the data send rate is the
 	same as the Kobuki data receive rate*/
+	usleep(20000);
 }
 
 // Function to stop the Kobuki
