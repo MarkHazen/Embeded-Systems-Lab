@@ -84,7 +84,7 @@ int main(int argc, char const *argv[]) {
 
 			if(event.number == 1) {
 				printf("Left Stick\n");
-				if(abs(event.value) < 1000)
+				if(abs(event.value) > 1000)
 					speed = -event.value/100;
 			}
 
@@ -99,13 +99,15 @@ int main(int argc, char const *argv[]) {
 			}
 		}
 
+		std::cout << to_string(speed) << ", " << to_string(radius) << std::endl;
+
 		/*Convert the event to a useable data type so it can be sent*/
 		int data[2];
 		data[0] = speed;
 		data[1] = radius;
 		
 		/*Print the data stream to the terminal*/
-		std::cout << speed << ", " << radius << std::endl;
+		
 
 		/*Send the data to the server*/
 		send(sock, data, sizeof(data), 0);
