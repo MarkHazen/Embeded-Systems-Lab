@@ -138,11 +138,16 @@ void createSocket()
 
 void readData()
 {
+	int buffer[2];
 	/*Read the incoming data stream from the controller*/
+	int length = recv(sock, buffer, 1024, 0)
 
+	if(length <= 0) { //Client disconects
+		std::cout << "Client has disconnected" << std::endl;
+
+	}
 	/*Print the data to the terminal*/
-
-	/*Use the received data to control the Kobuki*/
+	
 
 	if (/**/)
 	{
