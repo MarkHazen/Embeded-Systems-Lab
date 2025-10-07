@@ -136,21 +136,17 @@ void createSocket()
 	}
 }
 
-void readData()
-{
-	int buffer[2];
+void readData() {
 	/*Read the incoming data stream from the controller*/
-	int length = recv(sock, buffer, 1024, 0)
+	int data[2];
+	length = recv(new_socket, data, sizeof(data), 1);
 
-	if(length <= 0) { //Client disconects
-		std::cout << "Client has disconnected" << std::endl;
-
-	}
 	/*Print the data to the terminal*/
+	printf("Speed: " + data[0] + ", Radius: " + data[1]);
+
 	
 
-	if (/**/)
-	{
+	if (length = 0) {
 		/*Closes out of all connections cleanly*/
 
 		// When you need to close out of all connections, please
@@ -162,6 +158,9 @@ void readData()
 		exit(0);
 	}
 
+	/*Use the received data to control the Kobuki*/
+	movement(data[0], data[1]);
+
 	/*Reset the buffer*/
-	memset(& /*buffer*/, '0', sizeof(/*buffer*/));
+	memset(&data, '0', sizeof(data));
 }
