@@ -149,7 +149,7 @@ int main(int argc, char const *argv[]) {
 		serv_addr.sin_port = htons(PORT);
 
 		/*Use the IP address of the server you are connecting to*/
-		if (inet_pton(AF_INET, "10.227.24.107", &serv_addr.sin_addr) <= 0)		{
+		if (inet_pton(AF_INET, "10.227.11.224", &serv_addr.sin_addr) <= 0)		{
 			printf("\nInvalid address/ Address not supported\n");
 			return -1;
 		}

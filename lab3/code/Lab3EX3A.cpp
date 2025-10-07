@@ -20,13 +20,20 @@ void readData();
 
 int kobuki, new_socket;
 
+int data[2];
+
 /*Create char buffer to store transmitted data*/
 
 int main()
 {
 	// Initialize filestream for the Kobuki
 	wiringPiSetup();
+
+	printf("Waiting for kobuki\n");
+
 	kobuki = serialOpen("/dev/kobuki", 115200);
+
+	printf("Waiting for socket...\n");
 
 	// Create connection to client
 	createSocket();
@@ -138,15 +145,14 @@ void createSocket()
 
 void readData() {
 	/*Read the incoming data stream from the controller*/
-	int data[2];
-	length = recv(new_socket, data, sizeof(data), 1);
+	int length = recv(new_socket, data, sizeof(data), 0);
 
 	/*Print the data to the terminal*/
-	printf("Speed: " + data[0] + ", Radius: " + data[1]);
+	printf("Speed: %d, Radius: %d\n", data[0], data[1]);
 
 	
 
-	if (length = 0) {
+	if (length == 0) {
 		/*Closes out of all connections cleanly*/
 
 		// When you need to close out of all connections, please
@@ -163,4 +169,5 @@ void readData() {
 
 	/*Reset the buffer*/
 	memset(&data, '0', sizeof(data));
+	usleep(20000);
 }
