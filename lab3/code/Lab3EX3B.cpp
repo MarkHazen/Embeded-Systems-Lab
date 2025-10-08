@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]) {
 				printf("Right Stick\n");
 				if(speed == 0) {
 					radius = 1;
-					speed = event.value/100;
+					speed = -event.value/100;
 				}
 				else if(speed != 0){}
 
@@ -111,6 +111,7 @@ int main(int argc, char const *argv[]) {
 
 		/*Send the data to the server*/
 		send(sock, data, sizeof(data), 0);
+		usleep(20000);
 
 		if (quit) {
 			/*Closes out of all connections cleanly*/
@@ -148,7 +149,7 @@ int main(int argc, char const *argv[]) {
 		serv_addr.sin_port = htons(PORT);
 
 		/*Use the IP address of the server you are connecting to*/
-		if (inet_pton(AF_INET, "10.227.24.107", &serv_addr.sin_addr) <= 0)		{
+		if (inet_pton(AF_INET, "10.227.11.224", &serv_addr.sin_addr) <= 0)		{
 			printf("\nInvalid address/ Address not supported\n");
 			return -1;
 		}
