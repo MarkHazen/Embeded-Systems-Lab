@@ -37,20 +37,20 @@ int main() {
         serialGetchar(kobuki);
 
         /*Read the bytes containing the bumper, wheel drop,
-                and cliff sensors. You can convert them into a usable data type.*/
-        bumper = serialGetchar(kobuki);
-        drop = serialGetchar(kobuki);
-        cliff = serialGetchar(kobuki);
+        and cliff sensors. You can convert them into a usable data type.*/
+        bumper = serialGetchar(kobuki);  // byte 2
+        drop = serialGetchar(kobuki);    // byte 3
+        cliff = serialGetchar(kobuki);   // byte 4
 
         /*Print the data to the screen.*/
         cout << "Bumper: " << bumper << "  Drop: " << drop << "  Cliff: " << cliff << endl;
         /*Read through 6 bytes between the cliff sensors and
         the button sensors.*/
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++)  // skip byte 5-10
             serialGetchar(kobuki);
 
         /*Read the byte containing the button data.*/
-        button = serialGetchar(kobuki);
+        button = serialGetchar(kobuki);  // byte 11
         cout << "Button: " << button << endl;
 
         /*Close the script and the connection to the Kobuki when
