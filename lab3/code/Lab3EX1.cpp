@@ -14,29 +14,40 @@ int main(){
 	wiringPiSetup();
 
 	kobuki = serialOpen("/dev/kobuki", 115200);
-	if(kobuki == 1) std::cout << "Serial port opened" >> std::endl;
+	if(kobuki == 1) std::cout << "Serial port opened" << std::endl;
 	
 	//The Kobuki accepts data packets at a rate of 20 ms.
 	//To continually move, data needs to be sent continuously. Therefore, 
 	//you need to call void movement(int sp, int r) in a for or while loop 
 	//in order to run a specific distance.
-	int sp = 250;
-	int r = 500;
+	int sp = 250; //speed in mm/s
+	int r = 500; //radius 50 cm
 	int b = 230; //distance between 2 wheels
 	int w = 1;
 
 	for (int i = 0; i < 4; i++) {
+		std::cout << "1" << std::endl;
+		
 		// Rotate 90 degrees
-        movement(w*b/2, 1); // Small radius for rotation
+        movement(w*b/2, -1); // Small radius for rotation
+		usleep(2290000);
         stopKobuki();
+
+		std::cout << "2" << std::endl;
 
 		// Move along a straight vertical side
         movement(sp, 0); // Straight movement
+		usleep(2280000);
         stopKobuki();
 
+		std::cout << "3" << std::endl;
+
 		// Move along a quarter circle
-        movement(sp*((r - b)/2)/r, r); // Radius for quarter-circle
+        movement(sp * (r + (b/2))/r, -r); // Radius for quarter-circle
+		usleep(5000000);
         stopKobuki();
+
+		std::cout << "4" << std::endl;
 	}
 	//Due to machine error, the calculated value of the time needed
 	//will not be exact, but can give you a rough starting value.
@@ -67,7 +78,8 @@ void movement(int sp, int r){
 	unsigned char b_2 = 0x06; /*Byte 2: Length of Payload*/
 	unsigned char b_3 = 0x01; /*Byte 3: Sub-Payload Header (Base control)*/
 	unsigned char b_4 = 0x04; /*Byte 4: Length of Sub-Payload*/
-
+	
+	//given to us
 	unsigned char b_5 = sp & 0xff;	//Byte 5: Payload Data: Speed(mm/s)
 	unsigned char b_6 = (sp >> 8) & 0xff; //Byte 6: Payload Data: Speed(mm/s)
 	unsigned char b_7 = r & 0xff;	//Byte 7: Payload Data: Radius(mm)
@@ -79,16 +91,14 @@ void movement(int sp, int r){
 	for (unsigned int i = 2; i < 9; i++)
 		checksum ^= packet[i];
 
+	
+
 	/*Send the data (Byte 0 - Byte 8 and checksum) to Kobuki using serialPutchar (kobuki, );*/
-	serialPutchar(kobuki, b_0);
-	serialPutchar(kobuki, b_1);
-	serialPutchar(kobuki, b_2);
-	serialPutchar(kobuki, b_3);
-	serialPutchar(kobuki, b_4);
-	serialPutchar(kobuki, b_5);
-	serialPutchar(kobuki, b_6);
-	serialPutchar(kobuki, b_7);
-	serialPutchar(kobuki, b_8);
+	for(int i = 0; i <= sizeof(packet); i++) {
+		serialPutchar(kobuki, packet[i]);
+	}
+
+	// serialPutchar(kobuki, packet);
 	serialPutchar(kobuki, checksum);
 
 	/*Pause the script so the data send rate is the
