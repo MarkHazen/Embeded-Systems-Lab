@@ -89,3 +89,37 @@ float read_sonar() {
 void movement(int sp, int r) {
     // you can reuse your code from Lab 3
 }
+void read_kobuki_sensors() {
+    unsigned int read, bumper, drop, cliff, button;
+
+    if (serialDataAvail(kobuki) == -1) return;
+
+    // Wait for the Basic Sensor Data packet
+    while (true) {
+        read = serialGetchar(kobuki);
+        if (read == 1 && serialGetchar(kobuki) == 15) break;
+    }
+
+    serialGetchar(kobuki);  // timestamp low
+    serialGetchar(kobuki);  // timestamp high
+    bumper = serialGetchar(kobuki);
+    drop = serialGetchar(kobuki);
+    cliff = serialGetchar(kobuki);
+
+    for (int i = 0; i < 6; i++) serialGetchar(kobuki);  // skip encoder+PWM
+    button = serialGetchar(kobuki);
+    for (int i = 0; i < 3; i++) serialGetchar(kobuki);  // skip rest
+
+    if (bumper) {
+        cout << "Bumper hit!  ";
+        if (bumper & 0x01) cout << "Right ";
+        if (bumper & 0x02) cout << "Center ";
+        if (bumper & 0x04) cout << "Left ";
+        cout << endl;
+    }
+    if (button & 0x02) {  // middle button
+        movement(0, 0);
+        serialClose(kobuki);
+        exit(0);
+    }
+}
