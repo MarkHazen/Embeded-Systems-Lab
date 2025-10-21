@@ -88,8 +88,10 @@ int main() {
 
             usleep(750000);
 
-            int turn_dir = rand() % 2 ? 1 : -1;
+            int turn_dir = 1;
 
+            if(bumper == 0x04) turn_dir = -1;
+ 
             movement(100, turn_dir);
 
             usleep(500000);
@@ -98,7 +100,7 @@ int main() {
         } else if (!hazard) {
             hazardDetected = false;
         }
-
+        serialFlush(kobuki);
         // Pause the script so the data read receive rate is the same as the Kobuki send rate.
         usleep(20000);
     }
