@@ -1,3 +1,5 @@
+// use g++ -std=c++11 -o Lab4EX3 Lab4EX3.cpp -lwiringPi
+
 #include <unistd.h>
 #include <wiringPi.h>
 #include <wiringSerial.h>
@@ -68,7 +70,9 @@ int main() {
                       (cliff > 0) ||
                       (drop == 1 || drop == 2 || drop == 3);
 
-        printf("%d", hazard);
+        printf("%d\n", hazard);
+
+        movement(150, 0);
 
         if (hazard && !hazardDetected) {
             hazardDetected = true;
@@ -76,7 +80,7 @@ int main() {
 
             movement(-100, 0);
 
-            usleep(500000);
+            usleep(750000);
 
             int turn_dir = rand() % 2 ? 1 : -1;
 
@@ -85,8 +89,9 @@ int main() {
             usleep(500000);
 
             movement(0, 0);
+        } else if(!hazard) {
             hazardDetected = false;
-        }  // else movement(150, 0);
+        }
 
         // Pause the script so the data read receive rate is the same as the Kobuki send rate.
         usleep(20000);
