@@ -66,6 +66,12 @@ int main() {
             break;
         }
 
+        if (bumper > 7 || drop > 7 || cliff > 7) {
+            cout << "Bad frame, resyncing..." << endl;
+            serialFlush(kobuki);
+            continue;
+        }
+
         bool hazard = (bumper == 6 || bumper == 1 || bumper == 2 || bumper == 3 || bumper == 4 || bumper == 5) ||
                       (cliff > 0) ||
                       (drop == 1 || drop == 2 || drop == 3);
@@ -89,7 +95,7 @@ int main() {
             usleep(500000);
 
             movement(0, 0);
-        } else if(!hazard) {
+        } else if (!hazard) {
             hazardDetected = false;
         }
 
