@@ -1,14 +1,14 @@
-//use g++ -std=c++11 -o Lab4EX2 Lab4EX2.cpp -lwiringPi
+// use g++ -std=c++11 -o Lab4EX2 Lab4EX2.cpp -lwiringPi
 
-
-#include <iostream>
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <wiringPi.h>
 #include <wiringSerial.h>
-#include <ctime>
-#include <ratio>
+
 #include <chrono>
+#include <ctime>
+#include <iostream>
+#include <ratio>
 using namespace std;
 using namespace std::chrono;
 
@@ -22,15 +22,21 @@ int MAX_ECHO_TIME = 18500;
 
 int currentState = 0;
 
-int main(){
-	wiringPiSetup();
-	kobuki = serialOpen("/dev/kobuki", 115200);
+int main() {
+    wiringPiSetup();
+    kobuki = serialOpen("/dev/kobuki", 115200);
+    if (kobuki < 0) {
+        cerr << "Failed to open Kobuki" << endl;
+        return -1;
+    }
 
-	/*Move from a random point within the area designated "X" to the
-	point B as shown on the diagram. Use a sonar sensor to navigate through the channel.
-	You can reuse your code from Lab 2 and 3*/
+    float dist;
 
-	/*Note: the Kobuki must completely pass point B as shown to receive full credit*/
+    // ---- a. Move to first turn ----
+    cout << "[A] Moving toward first turn..." << endl;
+    while (true) {
+        read_kobuki_sensors();  // check Kobuki internal sensors
+        dist = read_sonar();    // get sonar distance
 
 	int sp = 250; //speed in mm/s
 	int r = 500; //radius 50 cm
@@ -95,6 +101,23 @@ int main(){
 		}
 	}
 
+    // ---- d. Turn 90° left ----
+    cout << "[D] Turning 90° to the left..." << endl;
+    movement(100, 1);  // rotate left
+    usleep(2300000);
+    movement(0, 0);
+    usleep(500000);
+
+    // ---- e. Cross the final line ----
+    cout << "[E] Crossing final line at corridor exit..." << endl;
+    movement(200, 0);
+    usleep(3000000);  // drive straight to exit
+    movement(0, 0);
+
+    cout << "Navigation complete — Kobuki has exited the corridor!" << endl;
+
+    serialClose(kobuki);
+    return 0;
 }
 
 float read_sonar() {
