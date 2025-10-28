@@ -48,11 +48,28 @@ def UpFunction():
     return "Nothing"
 
 # define the rest of the functions to handle the left, right, down and stop buttons (4 functions)
-@app.route('/function_name')
+@app.route('/LeftFunction')
 def function_name():
-    print('In XXFunction')
+    print('In LeftFunction')
     return "Nothing"
 
+
+@app.route('/RightFunction')
+def UpFunction():
+    print('In RightFunction')
+    return "Nothing"
+
+
+@app.route('/DownFunction')
+def UpFunction():
+    print('In DownFunction')
+    return "Nothing"
+
+
+@app.route('/StopFunction')
+def UpFunction():
+    print('In StopFunction')
+    return "Nothing"
 
     
 
