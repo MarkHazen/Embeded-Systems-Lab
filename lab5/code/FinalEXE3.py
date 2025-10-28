@@ -20,7 +20,7 @@ sock_1.bind(server_address_1)
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = 'XX.XXX.XXX.XXX'
+IP_Address = '10.227.68.115'
 PORT = 8080
 #Connect the *.html page to the server and run as the default page
 
@@ -31,15 +31,15 @@ def index():
         def events():
             for i, c in enumerate(itertools.cycle('\|/-')):
             # info = connection.recv(6).decode("utf-8")   
-                yield "data: %s\n\n" % ('b1c0d0')
+                yield "data: %s\n\n" % ('b1c0d0') #Right Bumper
+                time.sleep(0.1)
+                yield "data: %s\n\n" % ('b0c0d0') #No Bumper
+                time.sleep(0.1)
+                yield "data: %s\n\n" % ('b0c1d0') #Right Cliff
                 time.sleep(0.1)
                 yield "data: %s\n\n" % ('b0c0d0')
                 time.sleep(0.1)
-                yield "data: %s\n\n" % ('b0c1d0')
-                time.sleep(0.1)
-                yield "data: %s\n\n" % ('b0c0d0')
-                time.sleep(0.1)
-                yield "data: %s\n\n" % ('b0c0d1')
+                yield "data: %s\n\n" % ('b0c0d1') #Right Wheel Drop
                 time.sleep(0.1)
                 yield "data: %s\n\n" % ('b0c0d0')
                 time.sleep(0.1)
@@ -49,7 +49,7 @@ def index():
 
 def gen(camera):
     max_len = 65507
-    frame = ''
+    frame = 'b'
     while True:
         # receive image to the client: frame,_ = .....
         
@@ -73,6 +73,26 @@ def UpFunction():
 def function_name():
     print('In XXFunction')
     return "Nothing"
+
+@app.route('/LeftFunction')
+def LeftFunction():
+    print('In LeftFunction')
+    return "Left pressed"
+
+@app.route('/RightFunction')
+def RightFunction():
+    print('In RightFunction')
+    return "Right pressed"
+
+@app.route('/DownFunction')
+def DownFunction():
+    print('In DownFunction')
+    return "Down pressed"
+
+@app.route('/StopFunction')
+def StopFunction():
+    print('In StopFunction')
+    return "Stop pressed"
 
 
     

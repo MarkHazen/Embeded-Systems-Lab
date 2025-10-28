@@ -70,7 +70,16 @@ def get_f():
     print(len(image))
     try:
         # Send image to the server
-        pass
+        # pass
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server_address = ('10.227.68.115', 8001)
+        
+        max_len = 65507 # Maximum UDP packet size
+        for i in range(0, len(image), max_len):
+            chunk = image[i:i+max_len]
+            sock.sendto(chunk, server_address)
+            
+        sock.close()
     except:
         print("something happened")
 

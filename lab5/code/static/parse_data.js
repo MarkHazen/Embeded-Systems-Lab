@@ -14,6 +14,7 @@ if (!!window.EventSource) {
         document.getElementById("bumperStatus").value = "No contact";
       } else {
         let status = [];
+        //Testing each bit using AND operation
         if (bumper & 0x01) status.push("Right");
         if (bumper & 0x02) status.push("Center");
         if (bumper & 0x04) status.push("Left");
