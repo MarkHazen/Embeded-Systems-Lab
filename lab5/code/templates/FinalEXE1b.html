@@ -2,6 +2,35 @@
 	<head>
 		<!-- define your title  -->
 		<title>ECEN4213 IoT</title>	
+		<style>	
+			body {
+				text-align: center; 
+				margin: 0; 
+				padding-top: 5%; 
+				background-color: #f8f8f8; 
+				font-family: Arial, sans-serif;
+			}
+			
+			img {
+				display: block; /* allows margin auto to center */
+				margin: 20px auto; /* centers the image horizontally */
+				width: 150px;
+				height: 250px;
+			}
+			
+			.button-container {
+				margin-top: 30px;
+			}
+			
+			input {
+				font-size: 30px;
+				height: 100px;
+				width: 200px;
+				margin: 0 20px; /* space between buttons */
+				cursor: pointer;
+			}
+		</style>
+
 		<script>
 			function turn_on_light()
 			{
@@ -21,20 +50,16 @@
 				// select an image to display
 				element.src = "../static/pic_bulboff.png";
 			}
-
-			
 		</script>
 
 
 
 
 	</head>
-
-
 	<body>
 		<!-- the description sentence  -->
-		<center><h1>ECEN4213 IoT</h1></center>
-		<center><h2>A Light Bulb</h2></center>
+		<h1>ECEN4213 IoT</h1>
+		<h2>A Light Bulb</h2>
 		<!-- display the image -->
 
 
@@ -43,13 +68,9 @@
 		
 		<!-- to modify the position and size of the buttons, you can modify  style="position:relative;top:5%;left:30%" 
 		and style="font-size:30;height:100px; width:200px;" -->
-		<div  style="position:relative;top:5%;left:36.25%">
-	      <input style="font-size:30;height:100px; width:200px;" type = "button" onclick="turn_on_light()" id = "turn_on" value = "Turn ON" />
-	      <input style="font-size:30;height:100px; width:200px;" type = "button" onclick="turn_off_light()" id = "turn_off" value = "Turn OFF" />
+		<div  class = "button-container">
+	      <input type = "button" onclick="turn_on_light()" id = "turn_on" value = "Turn ON" />
+	      <input type = "button" onclick="turn_off_light()" id = "turn_off" value = "Turn OFF" />
     	</div>
-
-
-
-
 	</body>
 </html>
