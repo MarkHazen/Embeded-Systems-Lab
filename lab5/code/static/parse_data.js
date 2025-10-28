@@ -7,31 +7,30 @@ if (!!window.EventSource) {
 
 
       // finish the code to handle the bumper status
-        if (bumper=="0")
-          {
-            document.getElementById("but1").value = "OFF";
-          }
-        if (bumper=="1")
-        {
-          document.getElementById("but1").value = "Right";
-        }
-        
+      if (bumper == "0") {
+        document.getElementById("bumperStatus").value = "OFF";
+      }
+      if (bumper == "1") {
+        document.getElementById("bumperStatus").value = "ON";
+      }
          
         
         // finish the code to handle the wheel drop status 
-      if (drop=="0")
-        {
-          document.getElementById("the id of button where you need to display the sensor status").value = "OFF";
-
-        }
-      
+      if (drop == "0") {
+        document.getElementById("wheelDropStatus").value = "OFF";
+      }
+      if (drop == "1") {
+        document.getElementById("wheelDropStatus").value = "ON";
+      }
 
       // finish the code to handle cliff status 
-      if (cliff=="0")
-        {
-          document.getElementById("the id of button where you need to display the sensor status").value = "OFF";
-        }
-      
+      if (cliff == "0") {
+        document.getElementById("cliffStatus").value = "OFF";
+      }
+      if (cliff == "1") {
+        document.getElementById("cliffStatus").value = "ON";
+      }
+        
 
 
     }
