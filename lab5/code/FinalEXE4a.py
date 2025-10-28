@@ -28,7 +28,7 @@ connection, address = sock.accept()
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = 'XX.XXX.XXX.XXX'
+IP_Address = '10.227.68.115'
 PORT = 8080
 #Connect the *.html page to the server and run as the default page
 
@@ -74,6 +74,33 @@ def function_name():
     connection.send(cmd.encode('utf-8'))  
     return "None"
 
+@app.route('/LeftFunction')
+def LeftFunction():
+    print('In LeftFunction')
+    cmd = 'a'
+    connection.send(cmd.encode('utf-8'))
+    return "Left pressed"
+
+@app.route('/RightFunction')
+def RightFunction():
+    print('In RightFunction')
+    cmd = 'd'
+    connection.send(cmd.encode('utf-8'))
+    return "Right pressed"
+
+@app.route('/DownFunction')
+def DownFunction():
+    print('In DownFunction')
+    cmd = 's'
+    connection.send(cmd.encode('utf-8'))
+    return "Down pressed"
+
+@app.route('/StopFunction')
+def StopFunction():
+    print('In StopFunction')
+    cmd = 'x'
+    connection.send(cmd.encode('utf-8'))
+    return "Stop pressed"
 
     
 
