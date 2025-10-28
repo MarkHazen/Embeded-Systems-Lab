@@ -1,60 +1,131 @@
-
-
 <html>
-  <head>
-    <!-- define your title  -->
 
-    <style>
-		body {
-			text-align: center;
-		}
-    </style>
-  </head>
+<head>
+  <title>ECEN4213 IoT – Robot Control Dashboard</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 2%;
+    }
 
-  <body>
+    h1 {
+      margin-bottom: 10px;
+    }
 
-      <!-- image display module -->
-      <h1>Live Streaming</h1>
-      <img src="../static/img name.png" height="35%">
+    img {
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 400px;
+      height: auto;
+    }
 
-      <hr>
+    hr {
+      margin: 30px 0;
+    }
 
-      <!-- sensor status display module -->
-      <div>
-        <!-- module 2 sensor tag: Bumper, wheelDrop, Cilff -->	
-        <!-- sensor tag: Bumper, wheelDrop, Cilff -->
-        <input style="font-size:40;height:150; width:300;" type = "button" id = "disbutton" value = "OFF" />
-        <!-- add two more buttons here -->
+    /* -------- Sensor Buttons -------- */
+    .sensor-block {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
 
-      </div>
+    .sensor-block input {
+      font-size: 28px;
+      height: 80px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #e6e6e6;
+    }
 
-      <div>
-        <!-- module 2 sensor status: on, off,… -->
-        <input style="font-size:XX;height:XX; width:XX;" type = "button" id = "but1" value = "XX" />
-        <!-- add two more buttons here -->
-      </div>
-        
+    .status-block {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
 
+    .status-block input {
+      font-size: 28px;
+      height: 80px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #e6e6e6;
+    }
 
-      <!-- D-pad module -->
-      <div>
-          <div>
-            <!-- up button -->
-          <input style="font-size:50;height:200px; width:200px;" type = "button" id = "upbutton" value = "Up" />
-          
-          </div>
-          
-          <div>
-            <!-- left, stop and right button -->
-          <input style="font-size:XX;height:XX; width:XX;" type = "button" id = "leftbutton" value = "Left" />
-          <!-- add two more buttons here -->
-          </div>
-          
-          <div>
-          <!-- down button -->
-          <input style="font-size:XX;height:XX; width:XX;" type = "button" id = "XX" value = "XX" />
-          </div>
-      </div>
+    /* -------- D-Pad -------- */
+    .dpad {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-  </body>
+    .dpad-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .dpad input {
+      font-size: 36px;
+      height: 120px;
+      width: 120px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background-color: #e6e6e6;
+    }
+
+    .dpad input:active {
+      background-color: #d0d0d0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Live Stream Module -->
+  <h1>Live Streaming</h1>
+  <img src="../static/sample_stream.png" alt="Live Video" />
+
+  <hr />
+
+  <!-- Sensor Status Display Module -->
+  <div class="sensor-block">
+    <input type="button" id="bumper" value="Bumper" />
+    <input type="button" id="wheeldrop" value="WheelDrop" />
+    <input type="button" id="cliff" value="Cliff" />
+  </div>
+
+  <div class="status-block">
+    <input type="button" id="bumperStatus" value="OFF" />
+    <input type="button" id="wheelDropStatus" value="OFF" />
+    <input type="button" id="cliffStatus" value="OFF" />
+  </div>
+
+  <hr />
+
+  <!-- D-Pad Module -->
+  <div class="dpad">
+    <div><input type="button" id="upbutton" value="Up" /></div>
+
+    <div class="dpad-row">
+      <input type="button" id="leftbutton" value="Left" />
+      <input type="button" id="stopbutton" value="Stop" />
+      <input type="button" id="rightbutton" value="Right" />
+    </div>
+
+    <div><input type="button" id="downbutton" value="Down" /></div>
+  </div>
+</body>
+
 </html>
