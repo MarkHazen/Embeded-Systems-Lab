@@ -38,7 +38,7 @@ def index():
     if request.headers.get('accept') == 'text/event-stream':
         def events():
             for i, c in enumerate(itertools.cycle('\|/-')):
-                yield "data: %s\n\n" % ('b0c0d0')
+                yield "data: %s\n\n" % ('')
         return Response(events(), content_type='text/event-stream')
     return render_template('FinalEXE3.html')
 
