@@ -20,31 +20,17 @@ info = "b0c0d0"
 IP_Address = '10.227.96.142'
 PORT = 8080
 
-
-
-
 @app.route('/')
 def index():
-    """Main D-Pad page"""
-    if request.headers.get('accept') == 'text/event-stream':
-        def events():
-            global info
-            while True:
-                yield f"data: {info}\n\n"
-                time.sleep(0.1)
-        return Response(events(), content_type='text/event-stream')
-    return render_template('index.html')
-
+    return render_template('FinalB3.html')  # main D-pad
 
 @app.route('/joystick')
 def joystick():
-    return render_template('joystick.html')
-
+    return render_template('FinalB1.html')  # joystick control
 
 @app.route('/phone')
 def phone():
-    return render_template('phone.html')
-
+    return render_template('FinalB2.html')  # phone sensor control
 
 def gen(camera):
     max_len = 65507
