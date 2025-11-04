@@ -9,12 +9,38 @@
     <script src="../static/parse_data.js"></script>
 
 
-    <script type=text/javascript> $(function() { $("#upbutton").click(function (event) { $.getJSON('/UpFunction', { },
-    function(data) { }); return false; }); }); </script> 
+    <!-- <script type=text/javascript> $(function() { $("#upbutton").click(function (event) { $.getJSON('/UpFunction', { },
+    function(data) { }); return false; }); }); </script>  -->
 
     <!-- add four more functions for the left, right, down and stop buttons -->
     <script type=text/javascript> $(function() { $("#button_id (change to corresponding button id in the D-pad)").click(function (event) { $.getJSON('/function_name (change to the function name used in the Python code)', { },
       function(data) { }); return false; }); }); </script> 
+
+      <script type=text/javascript>
+        $(function() {
+          $("#upbutton").click(function (event) {
+            $.getJSON('/UpFunction', {}, function(data) {});
+            return false;
+          });
+          $("#leftbutton").click(function (event) {
+            $.getJSON('/LeftFunction', {}, function(data) {});
+            return false;
+          });
+          $("#rightbutton").click(function (event) {
+            $.getJSON('/RightFunction', {}, function(data) {});
+            return false;
+          });
+          $("#downbutton").click(function (event) {
+            $.getJSON('/DownFunction', {}, function(data) {});
+            return false;
+          });
+          $("#stopbutton").click(function (event) {
+            $.getJSON('/StopFunction', {}, function(data) {});
+            return false;
+          });
+        });
+      </script>
+
 
 
     <style>
@@ -71,7 +97,7 @@
               xhttp.setRequestHeader("Content-Type", "application/json");
 
               // todo: format xpos and ypos into a JSON message with the format: {"x": xpos, "y": ypos}
-              const json = {    };
+              const json = {x: xpos, y: joy.GetY()};
 
               xhttp.send(JSON.stringify(json));
           }

@@ -36,15 +36,26 @@ PORT = 8080
 
 info = "2"
 
+# @app.route('/')
+# def index():
+#     if request.headers.get('accept') == 'text/event-stream':
+#         def events():
+#             for i, c in enumerate(itertools.cycle('\|/-')):
+#                 yield "data: %s\n\n" % ("b0c0d0")
+                
+#         return Response(events(), content_type='text/event-stream')
+#     return render_template('FinalB1.html')
 @app.route('/')
 def index():
     if request.headers.get('accept') == 'text/event-stream':
         def events():
-            for i, c in enumerate(itertools.cycle('\|/-')):
-                yield "data: %s\n\n" % ("b0c0d0")
-                
+            global info
+            while True:
+                yield f"data: {info}\n\n"
+                time.sleep(0.1)
         return Response(events(), content_type='text/event-stream')
     return render_template('FinalB1.html')
+
 
 
 def launch_socket_server(connection, address ):
@@ -62,6 +73,7 @@ def gen(camera):
     max_len = 65507
     while True:
         # receive image to the client: frame = .....
+        frame, addr = sock_1.recvfrom(max_len)
         
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
