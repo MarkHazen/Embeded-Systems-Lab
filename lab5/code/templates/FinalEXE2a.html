@@ -1,0 +1,131 @@
+<html>
+
+<head>
+  <title>ECEN4213 IoT – Robot Control Dashboard</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 2%;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    img {
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 400px;
+      height: auto;
+    }
+
+    hr {
+      margin: 30px 0;
+    }
+
+    /* -------- Sensor Buttons -------- */
+    .sensor-block {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .sensor-block input {
+      font-size: 28px;
+      height: 80px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #e6e6e6;
+    }
+
+    .status-block {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .status-block input {
+      font-size: 28px;
+      height: 80px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #e6e6e6;
+    }
+
+    /* -------- D-Pad -------- */
+    .dpad {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dpad-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .dpad input {
+      font-size: 36px;
+      height: 120px;
+      width: 120px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background-color: #e6e6e6;
+    }
+
+    .dpad input:active {
+      background-color: #d0d0d0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Live Stream Module -->
+  <h1>Live Streaming</h1>
+  <img src="../static/sample_stream.png" alt="Live Video" />
+
+  <hr />
+
+  <!-- Sensor Status Display Module -->
+  <div class="sensor-block">
+    <input type="button" id="bumper" value="Bumper" />
+    <input type="button" id="wheeldrop" value="WheelDrop" />
+    <input type="button" id="cliff" value="Cliff" />
+  </div>
+
+  <div class="status-block">
+    <input type="button" id="bumperStatus" value="OFF" />
+    <input type="button" id="wheelDropStatus" value="OFF" />
+    <input type="button" id="cliffStatus" value="OFF" />
+  </div>
+
+  <hr />
+
+  <!-- D-Pad Module -->
+  <div class="dpad">
+    <div><input type="button" id="upbutton" value="Up" /></div>
+
+    <div class="dpad-row">
+      <input type="button" id="leftbutton" value="Left" />
+      <input type="button" id="stopbutton" value="Stop" />
+      <input type="button" id="rightbutton" value="Right" />
+    </div>
+
+    <div><input type="button" id="downbutton" value="Down" /></div>
+  </div>
+</body>
+
+</html>
