@@ -20,7 +20,7 @@
 
 using namespace std;
 #define PORT 8000
-#define IP "127.0.0.1"
+#define IP "10.227.118.162"
 
 int sock = 0;
 void movement(int, int);

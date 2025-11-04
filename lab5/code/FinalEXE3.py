@@ -20,7 +20,7 @@ sock_1.bind(server_address_1)
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = '10.227.68.115'
+IP_Address = '10.227.118.162'
 PORT = 8080
 #Connect the *.html page to the server and run as the default page
 
@@ -52,6 +52,8 @@ def gen(camera):
     frame = 'b'
     while True:
         # receive image to the client: frame,_ = .....
+
+        frame, addr = sock_1.recvfrom(max_len)
         
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')

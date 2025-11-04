@@ -39,9 +39,10 @@ class Camera(object):
     def _thread(cls):
         with picamera.PiCamera() as camera:
             # Camera setup: camera.resolution = (X,X)
+            camera.resolution = (320, 240)
 
             camera.hflip = True
-            camera.vflip = True
+            camera.vflip = False
 
             stream = io.BytesIO()
             for foo in camera.capture_continuous(stream, 'jpeg',
@@ -64,22 +65,16 @@ class Camera(object):
 camera = Camera()
 # Setup the UDP socket
 
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_address = ('127.0.0.2', 8001)
+
 def get_f():
     global camera,connection
     image = camera.get_frame()
     print(len(image))
     try:
         # Send image to the server
-        # pass
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server_address = ('10.227.68.115', 8001)
-        
-        max_len = 65507 # Maximum UDP packet size
-        for i in range(0, len(image), max_len):
-            chunk = image[i:i+max_len]
-            sock.sendto(chunk, server_address)
-            
-        sock.close()
+        sock.sendto(image, server_address)
     except:
         print("something happened")
 
