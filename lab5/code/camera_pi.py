@@ -41,7 +41,7 @@ class Camera(object):
             # Camera setup: camera.resolution = (X,X)
             camera.resolution = (320, 240)
 
-            camera.hflip = True
+            camera.hflip = False
             camera.vflip = False
 
             stream = io.BytesIO()

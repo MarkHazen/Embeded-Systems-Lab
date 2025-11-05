@@ -19,7 +19,7 @@ sock_1.bind(server_address_1)
 
 
 
-server_address =  ('127.0.0.1', 8000)
+server_address =  ('127.0.0.3', 8000)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(server_address)
 sock.listen(5)
@@ -48,6 +48,7 @@ def gen(camera):
     frame = ''
     while True:
         # receive image to the client: frame = .....
+        frame, addr = sock_1.recvfrom(max_len)
 
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')

@@ -28,17 +28,16 @@ connection, address = sock.accept()
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = '10.227.118.162'
+IP_Address = '10.227.73.233'
 PORT = 8080
 #Connect the *.html page to the server and run as the default page
-
 
 @app.route('/')
 def index():
     if request.headers.get('accept') == 'text/event-stream':
         def events():
             for i, c in enumerate(itertools.cycle('\|/-')):
-                yield "data: %s\n\n" % ('')
+                yield "data: %s\n\n" % (info)
         return Response(events(), content_type='text/event-stream')
     return render_template('FinalEXE3.html')
 
@@ -49,7 +48,8 @@ def gen(camera):
     frame = ''
     while True:
         # receive image to the client: frame = .....
-
+        frame, addr = sock_1.recvfrom(max_len)
+        
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
@@ -84,6 +84,34 @@ def function_name():
     cmd = 'XXXXX'
     connection.send(cmd.encode('utf-8'))  
     return "None"
+
+@app.route('/LeftFunction')
+def LeftFunction():
+    print('In LeftFunction')
+    cmd = 'a'
+    connection.send(cmd.encode('utf-8'))
+    return "Left pressed"
+
+@app.route('/RightFunction')
+def RightFunction():
+    print('In RightFunction')
+    cmd = 'd'
+    connection.send(cmd.encode('utf-8'))
+    return "Right pressed"
+
+@app.route('/DownFunction')
+def DownFunction():
+    print('In DownFunction')
+    cmd = 's'
+    connection.send(cmd.encode('utf-8'))
+    return "Down pressed"
+
+@app.route('/StopFunction')
+def StopFunction():
+    print('In StopFunction')
+    cmd = 'x'
+    connection.send(cmd.encode('utf-8'))
+    return "Stop pressed"
 
 
     

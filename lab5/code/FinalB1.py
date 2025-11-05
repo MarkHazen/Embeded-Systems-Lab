@@ -30,11 +30,8 @@ connection, address = sock.accept()
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = 'XX.XXX.XXX.XXX'
+IP_Address = '10.227.73.233'
 PORT = 8080
-#Connect the *.html page to the server and run as the default page
-
-info = "2"
 
 # @app.route('/')
 # def index():
@@ -49,13 +46,10 @@ info = "2"
 def index():
     if request.headers.get('accept') == 'text/event-stream':
         def events():
-            global info
-            while True:
-                yield f"data: {info}\n\n"
-                time.sleep(0.1)
+            for i, c in enumerate(itertools.cycle('\|/-')):
+                yield "data: %s\n\n" % (info)
         return Response(events(), content_type='text/event-stream')
     return render_template('FinalB1.html')
-
 
 
 def launch_socket_server(connection, address ):
@@ -66,8 +60,6 @@ def launch_socket_server(connection, address ):
         info = connection.recv(6).decode("utf-8")
         if info != a and len(info)>0:
             a = info
-
-
 
 def gen(camera):
     max_len = 65507
