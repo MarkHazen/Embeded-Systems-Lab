@@ -34,16 +34,17 @@
 
   <!-- sensor status display module -->
   <div>
-    <input style="font-size:40;height:150; width:300;" type="button" id="disbutton" value="Bumper" />
-    <input style="font-size:40;height:150; width:300;" type="button" id="disbutton" value="WheelDrop" />
-    <input style="font-size:40;height:150; width:300;" type="button" id="disbutton" value="Cliff" />
+    <input style="font-size:40;height:150; width:300;" type="button" id="bumper" value="Bumper" />
+    <!-- add two more buttons here -->
+    <input style="font-size:40;height:150px;width:300px;" type="button" id="wheelDrop" value="Wheel Drop" />
+    <input style="font-size:40;height:150px;width:300px;" type="button" id="cliff" value="Cliff" />
   </div>
 
 
   <div>
-    <input style="font-size:40;height:150; width:300;" type="button" id="but1" value="OFF" />
-    <input style="font-size:40;height:150; width:300;" type="button" id="but2" value="OFF" />
-    <input style="font-size:40;height:150; width:300;" type="button" id="but3" value="OFF" />
+    <input style="font-size:40;height:150px;width:300px;" type="button" id="bumperStatus" value="OFF" />
+    <input style="font-size:40;height:150px;width:300px;" type="button" id="wheelDropStatus" value="OFF" />
+    <input style="font-size:40;height:150px;width:300px;" type="button" id="cliffStatus" value="OFF" />
   </div>
 
   <hr>
@@ -161,11 +162,5 @@
 
 </script>
 </body>
-
-<hr>
-<p>
-  <a href="{{ url_for('index') }}">Switch to D-pad control</a><br>
-  <a href="{{ url_for('phone') }}">Switch to Phone sensor control</a>
-</p>
 
 </html>

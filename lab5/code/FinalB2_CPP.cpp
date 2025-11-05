@@ -38,8 +38,8 @@ unsigned int button;
 char cmd = 's';
 
 void readData();
-int speed(string);   // this function can parse the received buffer and return the speed value
-int radius(string);  // this function can parse the received buffer and return the radius value
+int yVal(string);   // this function can parse the received buffer and return the speed value
+int xVal(string);  // this function can parse the received buffer and return the radius value
 
 void read_socket() {
     char buffer[100];
@@ -50,11 +50,24 @@ void read_socket() {
         printf("received: %c\n", cmd);
         // parse sensor data from the buffer
         string value(buffer);
-        int sp = speed(value);
-        int r = radius(value);
+        int xpos = yVal(value);
+        int ypos = xVal(value);
+
+        int speed = 0;
+        int radius = 0;
+
+        if(abs(ypos) > abs(xpos)) {
+            speed = -ypos;
+            radius = 0;
+        } else if(abs(ypos) < abs(xpos)) {
+            speed = xpos;
+            radius = 1;
+        }
+
+        printf("Speed: %d, Radius: %d\n", speed, radius);
 
         // use the sensor data to control the robot movement
-        movement(sp, r);
+        movement(speed, radius);
 
         // clean the buffer
         memset(buffer, 0, sizeof(buffer));
@@ -67,24 +80,55 @@ int main() {
     kobuki = serialOpen("/dev/kobuki", 115200);
     createSocket();
     char buffer[10];
+    char read = 0;
     // char* p;
     std::thread t(read_socket);
     while (serialDataAvail(kobuki) != -1) {
+        while (true) {
+            // If the bytes are a 1 followed by 15, then we are
+            // parsing the basic sensor data packet
+            read = serialGetchar(kobuki);
+            if (read == 1) {
+                if (serialGetchar(kobuki) == 15)
+                    break;
+            }
+        }
         // Read the sensor data.
-        readData();
+        // Read past the timestamp
+        serialGetchar(kobuki);
+        serialGetchar(kobuki);
 
-        // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
-        char status[10];
-        sprintf(status, "b%dc%dd%d", bumper, cliff, drop);
+        /*Read the bytes containing the bumper, wheel drop,
+        and cliff sensors. You can convert them into a usable data type.*/
+        bumper = serialGetchar(kobuki);  // byte 2
+        drop = serialGetchar(kobuki);    // byte 3
+        cliff = serialGetchar(kobuki);   // byte 4
+
+        // printf("b%d", bumper);
+        // printf("c%d", cliff);
+        // printf("d%d", drop);
+
+        /*Read through 6 bytes between the cliff sensors and the button sensors.*/
+        for (int i = 0; i < 6; i++)  // skip byte 5-10
+            serialGetchar(kobuki);
+
+        /*Read the byte containing the button data.*/
+        button = serialGetchar(kobuki);  // byte 11
+                                         // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
+
+        sprintf(buffer, "b%dc%dd%d", bumper, cliff, drop);
+
+        //printf("%c%c%c%c%c%c\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 
         // Send the sensor data through the socket
-        send(sock, status, sizeof(status), 0);
+        send(sock, buffer, sizeof(buffer), 0);
 
         // Clear the buffer
         memset(buffer, 0, sizeof(buffer));
 
-        // You can refer to the code in previous labs.
         usleep(20000);
+
+        // You can refer to the code in previous labs.
     }
     serialClose(kobuki);
 
@@ -189,8 +233,8 @@ void readData() {
     usleep(20000);
 }
 
-int speed(string value) {
-    int ind = value.find('x', 0) + 5;
+int yVal(string value) {
+    int ind = value.find('y', 0) + 5;
     int ind2 = value.find("\'", ind);
     string index = value.substr(ind, ind2 - ind);
     printf("%s\n", index);
@@ -200,22 +244,22 @@ int speed(string value) {
     if (ind < -50) ind = -50;
     if (ind > -20 && ind < 5) ind = 0;
 
-    return 10 * ind;
+    return 4 * ind;
 }
 
-int radius(string value) {
-    int ind0 = value.find('z', 0) + 5;
+int xVal(string value) {
+    int ind0 = value.find('x', 0) + 5;
     int ind = value.find("\',", ind0);
     string index = value.substr(ind0, (ind - ind0));
 
     ind = stoi(index);
     // cout<<ind<<endl;
-    if (ind >= 0 && ind <= 20) ind = 0;
-    if (ind >= 340 && ind <= 360) ind = 0;
-    if (ind >= 0 && ind <= 180) {
-        ind = ind * 2;
-    } else {
-        ind = (ind - 360) * 2;
-    }
-    return ind;
+    // if (ind >= 0 && ind <= 20) ind = 0;
+    // if (ind >= 340 && ind <= 360) ind = 0;
+    // if (ind >= 0 && ind <= 180) {
+    //     ind = ind * 2;
+    // } else {
+    //     ind = (ind - 360) * 2;
+    // }
+    return 4 * ind;
 }

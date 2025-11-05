@@ -29,9 +29,9 @@ char checksum(char* packet, int packet_size);
 int createSocket();
 int kobuki;
 
-unsigned int bumper;
-unsigned int drop;
-unsigned int cliff;
+char bumper;
+char drop;
+char cliff;
 unsigned int button;
 char cmd = 's';
 
@@ -46,15 +46,26 @@ void read_socket() {
         read(sock, buffer, 50);
         /*Print the data to the terminal*/
         cmd = buffer[0];
-        printf("received: %c\n", cmd);
+        //printf("received: %c\n", cmd);
 
         // parse xpos and ypos from the buffer
         string value(buffer);
         int xpos = joystick_x(value);
         int ypos = joystick_y(value);
 
+        int speed = 0;
+        int radius = 0;
+
+        if(abs(ypos) > abs(xpos)) {
+            speed = ypos;
+            radius = 0;
+        } else if(abs(ypos) < abs(xpos)) {
+            speed = xpos;
+            radius = 1;
+        }
+
         // use xpos and ypos to control the robot movement
-        movement(ypos, xpos);
+        movement(speed, radius);
 
         // clean the buffer
         memset(buffer, 0, sizeof(buffer));
@@ -66,25 +77,56 @@ int main() {
     wiringPiSetup();
     kobuki = serialOpen("/dev/kobuki", 115200);
     createSocket();
-    char buffer[10];
+    char buffer[6];
+    unsigned int read = 0;
     // char* p;
     std::thread t(read_socket);
     while (serialDataAvail(kobuki) != -1) {
+        while (true) {
+            // If the bytes are a 1 followed by 15, then we are
+            // parsing the basic sensor data packet
+            read = serialGetchar(kobuki);
+            if (read == 1) {
+                if (serialGetchar(kobuki) == 15)
+                    break;
+            }
+        }
         // Read the sensor data.
-        readData();
+        // Read past the timestamp
+        serialGetchar(kobuki);
+        serialGetchar(kobuki);
 
-        // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
-        char status[10];
-        sprintf(status, "b%dc%dd%d", bumper, cliff, drop);
+        /*Read the bytes containing the bumper, wheel drop,
+        and cliff sensors. You can convert them into a usable data type.*/
+        bumper = serialGetchar(kobuki);  // byte 2
+        drop = serialGetchar(kobuki);    // byte 3
+        cliff = serialGetchar(kobuki);   // byte 4
+
+        // printf("b%d", bumper);
+        // printf("c%d", cliff);
+        // printf("d%d", drop);
+
+        /*Read through 6 bytes between the cliff sensors and the button sensors.*/
+        for (int i = 0; i < 6; i++)  // skip byte 5-10
+            serialGetchar(kobuki);
+
+        /*Read the byte containing the button data.*/
+        button = serialGetchar(kobuki);  // byte 11
+                                         // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
+
+        sprintf(buffer, "b%dc%dd%d", bumper, cliff, drop);
+
+        printf("%c%c%c%c%c%c\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 
         // Send the sensor data through the socket
-        send(sock, status, sizeof(status), 0);
+        send(sock, buffer, sizeof(buffer), 0);
 
         // Clear the buffer
-        memset(status, 0, sizeof(status));
+        memset(buffer, 0, sizeof(buffer));
+
+        usleep(20000);
 
         // You can refer to the code in previous labs.
-        usleep(20000);
     }
     serialClose(kobuki);
 
@@ -193,7 +235,7 @@ int joystick_x(string value) {
     int ind = value.find('x', 0) + 5;
     int ind2 = value.find("\'", ind);
     string index = value.substr(ind, ind2 - ind);
-    printf("%s\n", index);
+    //printf("%s\n", index);
     ind = -stoi(index);
     if (ind > -20 && ind < 20) ind = 0;
 

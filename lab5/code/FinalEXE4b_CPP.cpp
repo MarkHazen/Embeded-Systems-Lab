@@ -20,7 +20,7 @@
 
 using namespace std;
 #define  PORT 8000
-#define  IP "10.227.118.162"
+#define  IP "127.0.0.1"
 
 int sock = 0;
 void movement(int, int);
@@ -40,14 +40,24 @@ void readData();
 void read_socket() {
     char buffer[100];
     while (1) {
-        read(sock, buffer, 50);
-        /*Print the data to the terminal*/
-        cmd = buffer[0];
-        printf("received: %c\n", cmd);
+        int n = read(sock, buffer, sizeof(buffer));
+        if (n > 0) {
+            cmd = buffer[0];
+            printf("received: %c\n", cmd);
 
-        // use cmd to control the robot movement
+            if (cmd == 'u')
+                movement(200, 0);  // forward
+            else if (cmd == 's')
+                movement(-200, 0);  // backward
+            else if (cmd == 'a')
+                movement(100, 1);  // left
+            else if (cmd == 'd')
+                movement(100, -1);  // right
+            else if (cmd == 'x')
+                movement(0, 0);  // stop
 
-        // clean the buffer with memset
+            memset(buffer, 0, sizeof(buffer));
+        }
     }
 }
 
@@ -56,12 +66,12 @@ int main() {
     wiringPiSetup();
     kobuki = serialOpen("/dev/kobuki", 115200);
     createSocket();
-    char buffer[10];
+    char buffer[6];
     std::thread t(read_socket);
     bool hazardDetected = false;
-    unsigned int bumper = 0;
-    unsigned int drop = 0;
-    unsigned int cliff = 0;
+    char bumper = 0;
+    char drop = 0;
+    char cliff = 0;
     unsigned int button = 0;
     unsigned int read = 0;
 
@@ -86,6 +96,10 @@ int main() {
         drop = serialGetchar(kobuki);    // byte 3
         cliff = serialGetchar(kobuki);   // byte 4
 
+        // printf("b%d", bumper);
+        // printf("c%d", cliff);
+        // printf("d%d", drop);
+
         /*Read through 6 bytes between the cliff sensors and the button sensors.*/
         for (int i = 0; i < 6; i++)  // skip byte 5-10
             serialGetchar(kobuki);
@@ -94,10 +108,17 @@ int main() {
         button = serialGetchar(kobuki);  // byte 11
                                          // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
 
+        sprintf(buffer, "b%dc%dd%d", bumper, cliff, drop);
+
+        printf("%c%c%c%c%c%c\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+
         // Send the sensor data through the socket
         send(sock, buffer, sizeof(buffer), 0);
 
         // Clear the buffer
+        memset(buffer, 0, sizeof(buffer));
+
+        usleep(20000);
 
         // You can refer to the code in previous labs.
     }
