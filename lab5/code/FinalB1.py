@@ -82,6 +82,7 @@ def JoystickFunction():
     content_type = request.headers.get('Content-Type')
     if (content_type == 'application/json'):
         json = request.get_json()
+        print("Data ", json)
         connection.send(str(json).encode('utf-8'))
         return "Content supported\n"
     else:

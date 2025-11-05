@@ -37,7 +37,11 @@ unsigned int cliff;
 unsigned int button;
 char cmd = 's';
 
+int speed = 0;
+int radius = 0;
+
 void readData();
+void processData(string);
 int speed(string);   // this function can parse the received buffer and return the speed value
 int radius(string);  // this function can parse the received buffer and return the radius value
 
@@ -50,11 +54,11 @@ void read_socket() {
         printf("received: %c\n", cmd);
         // parse sensor data from the buffer
         string value(buffer);
-        int sp = speed(value);
-        int r = radius(value);
+
+        processData(value);
 
         // use the sensor data to control the robot movement
-        movement(sp, r);
+        //movement(sp, r);
 
         // clean the buffer
         memset(buffer, 0, sizeof(buffer));
@@ -187,6 +191,10 @@ void readData() {
     /*Pause the script so the data read receive rate is
     the same as the Kobuki send rate.*/
     usleep(20000);
+}
+
+void processData(string value) {
+    printf(value);
 }
 
 int speed(string value) {
