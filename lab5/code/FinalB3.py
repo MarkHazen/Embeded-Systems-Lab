@@ -134,6 +134,25 @@ def StopFunction():
     return "Stop pressed"
 
 
+@app.after_request
+def add_nav_links(response):
+    """Appends navigation links to the bottom of every rendered page."""
+    if response.content_type.startswith('text/html'):
+        nav_html = """
+        <hr>
+        <p style="font-size: 150%;">
+            <a href="/">Main D-Pad</a> |
+            <a href="/joystick">Joystick Control</a> |
+            <a href="/phone">Phone Sensor Control</a>
+        </p>
+        """
+        data = response.get_data(as_text=True)
+        if "</body>" in data:
+            data = data.replace("</body>", nav_html + "</body>")
+            response.set_data(data)
+    return response
+
+
 # if __name__ == "__main__":
 #     Thread(target=socket_listener, args=(connection,), daemon=True).start()
 #     app.run(host=IP_Address, port=PORT, debug=True,

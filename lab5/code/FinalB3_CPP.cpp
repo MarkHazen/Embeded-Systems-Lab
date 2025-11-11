@@ -48,20 +48,64 @@ int radius(string);  // this function can parse the received buffer and return t
 void read_socket() {
     char buffer[100];
     while (1) {
-        read(sock, buffer, 50);
-        /*Print the data to the terminal*/
-        cmd = buffer[0];
-        printf("received: %c\n", cmd);
-        // parse sensor data from the buffer
-        string value(buffer);
-
-        processData(value);
-
-        // use the sensor data to control the robot movement
-        //movement(sp, r);
-
-        // clean the buffer
         memset(buffer, 0, sizeof(buffer));
+        int bytes = read(sock, buffer, sizeof(buffer) - 1);
+        if (bytes <= 0) continue;
+
+        std::string value(buffer);
+
+        // Case 1: single-character D-pad command
+        if (value.length() == 1) {
+            char cmd = value[0];
+            if (cmd == 'u')
+                movement(200, 0);  // forward
+            else if (cmd == 's')
+                movement(-200, 0);  // backward
+            else if (cmd == 'a')
+                movement(100, 1);  // left turn
+            else if (cmd == 'd')
+                movement(100, -1);  // right turn
+            else if (cmd == 'x')
+                movement(0, 0);  // stop
+        }
+
+        // Case 2: joystick data (has 'x' and 'y')
+        else if (value.find("x") != std::string::npos && value.find("y") != std::string::npos && value.find("z") == std::string::npos) {
+            int xpos = 0, ypos = 0;
+            try {
+                int x1 = value.find("x") + 5;
+                int x2 = value.find("'", x1);
+                xpos = stoi(value.substr(x1, x2 - x1));
+
+                int y1 = value.find("y") + 5;
+                int y2 = value.find("'", y1);
+                ypos = stoi(value.substr(y1, y2 - y1));
+            } catch (...) {
+            }
+            printf("Joystick: x=%d y=%d\n", xpos, ypos);
+            movement(ypos * 3, xpos);
+        }
+
+        // Case 3: phone data (has 'x', 'y', and 'z')
+        else if (value.find("x") != std::string::npos && value.find("z") != std::string::npos) {
+            int x = 0, y = 0, z = 0;
+            try {
+                int x1 = value.find("x") + 5;
+                int x2 = value.find("'", x1);
+                x = stoi(value.substr(x1, x2 - x1));
+
+                int y1 = value.find("y") + 5;
+                int y2 = value.find("'", y1);
+                y = stoi(value.substr(y1, y2 - y1));
+
+                int z1 = value.find("z") + 5;
+                int z2 = value.find("'", z1);
+                z = stoi(value.substr(z1, z2 - z1));
+            } catch (...) {
+            }
+            printf("Phone: x=%d y=%d z=%d\n", x, y, z);
+            movement(y * 4, x);  // interpret phone tilt
+        }
     }
 }
 
