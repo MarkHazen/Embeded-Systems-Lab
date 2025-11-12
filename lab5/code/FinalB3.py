@@ -10,14 +10,14 @@ server_address_1 = ('127.0.0.2', 8001)  # UDP for video
 sock_1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock_1.bind(server_address_1)
 
-server_address = ('127.0.0.1', 8000)    # TCP for control/data
+server_address = ('127.0.0.1', 8001)    # TCP for control/data
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(server_address)
 sock.listen(5)
 connection, address = sock.accept()
 
 info = "b0c0d0"
-IP_Address = '10.227.73.233'
+IP_Address = '10.227.121.126'
 PORT = 8080
 
 @app.route('/')
@@ -27,7 +27,11 @@ def index():
             for i, c in enumerate(itertools.cycle('\|/-')):
                 yield "data: %s\n\n" % (info)
         return Response(events(), content_type='text/event-stream')
-    return render_template('FinalB3.html')  # main D-pad
+    return render_template('FinalB2.html')  # main D-pad
+
+@app.route('/dpad')
+def dpad():
+    return render_template('FinalB3.html')  # joystick control
 
 @app.route('/joystick')
 def joystick():
@@ -70,24 +74,16 @@ def joydata():
     return "Unsupported"
 
 
-@app.route('/phonedata', methods=['POST'])
-def phonedata():
-    """Handles phone orientation JSON"""
-    if request.is_json:
-        data = request.get_json()
-        connection.send(str(data).encode('utf-8'))
-        return "OK"
-    return "Unsupported"
-
-
-def socket_listener(connection):
-    global info
-    prev = "b0c0d0"
-    while True:
-        new = connection.recv(6).decode("utf-8")
-        if new and new != prev:
-            info = new
-            prev = new
+@app.route('/phonedata',methods = ['POST', 'GET'])
+def PhoneFunction():
+    content_type = request.headers.get('Content-Type')
+    if (content_type == 'application/json'):
+        json = request.get_json()
+        print("Data ", json)
+        connection.send(str(json).encode('utf-8'))
+        return "Content supported\n"
+    else:
+        return "Content not supported\n"
 
 
 @app.route('/UpFunction')
@@ -96,15 +92,7 @@ def UpFunction():
     cmd = 'u'
     connection.send(cmd.encode('utf-8'))  
     return "None"
-
-# define the rest of the functions to handle the left, right, down and stop buttons (4 functions)
-@app.route('/function_name')
-def function_name():
-    print('In XXFunction')
-    cmd = 'XXXXX'
-    connection.send(cmd.encode('utf-8'))  
-    return "None"
-
+    
 @app.route('/LeftFunction')
 def LeftFunction():
     print('In LeftFunction')
@@ -141,7 +129,7 @@ def add_nav_links(response):
         nav_html = """
         <hr>
         <p style="font-size: 150%;">
-            <a href="/">Main D-Pad</a> |
+            <a href="/dpad">Main D-Pad</a> |
             <a href="/joystick">Joystick Control</a> |
             <a href="/phone">Phone Sensor Control</a>
         </p>
@@ -152,12 +140,6 @@ def add_nav_links(response):
             response.set_data(data)
     return response
 
-
-# if __name__ == "__main__":
-#     Thread(target=socket_listener, args=(connection,), daemon=True).start()
-#     app.run(host=IP_Address, port=PORT, debug=True,
-#             use_reloader=False, ssl_context='adhoc')
-#Start the server
 if __name__ == "__main__":
     t = Thread(target=launch_socket_server,args=(connection,))
     t.daemon = True

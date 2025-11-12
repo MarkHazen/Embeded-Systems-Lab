@@ -30,7 +30,7 @@ connection, address = sock.accept()
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = '10.227.73.233'
+IP_Address = '10.227.121.126'
 PORT = 8080
 
 @app.route('/')

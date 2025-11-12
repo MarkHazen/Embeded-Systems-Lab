@@ -1,4 +1,4 @@
-// g++ -std=c++11 -o FinalB2_CPP FinalB2_CPP.cpp -lwiringPi -pthread
+// g++ -std=c++11 -o FinalB3_CPP FinalB3_CPP.cpp -lwiringPi -pthread
 
 #include <unistd.h>
 #include <wiringPi.h>
@@ -21,7 +21,7 @@
 #include <thread>
 
 using namespace std;
-#define PORT 8000
+#define PORT 8001
 #define IP "127.0.0.1"
 
 int sock = 0;
@@ -37,13 +37,12 @@ unsigned int cliff;
 unsigned int button;
 char cmd = 's';
 
-int speed = 0;
-int radius = 0;
-
 void readData();
 void processData(string);
-int speed(string);   // this function can parse the received buffer and return the speed value
-int radius(string);  // this function can parse the received buffer and return the radius value
+int yVal(string);   // this function can parse the received buffer and return the speed value
+int xVal(string);  // this function can parse the received buffer and return the radius value
+int joystick_x(string);
+int joystick_y(string);
 
 void read_socket() {
     char buffer[100];
@@ -71,40 +70,44 @@ void read_socket() {
 
         // Case 2: joystick data (has 'x' and 'y')
         else if (value.find("x") != std::string::npos && value.find("y") != std::string::npos && value.find("z") == std::string::npos) {
-            int xpos = 0, ypos = 0;
-            try {
-                int x1 = value.find("x") + 5;
-                int x2 = value.find("'", x1);
-                xpos = stoi(value.substr(x1, x2 - x1));
+            int xpos = joystick_x(value);
+            int ypos = joystick_y(value);
 
-                int y1 = value.find("y") + 5;
-                int y2 = value.find("'", y1);
-                ypos = stoi(value.substr(y1, y2 - y1));
-            } catch (...) {
+            int speed = 0;
+            int radius = 0;
+
+            if(abs(ypos) > abs(xpos)) {
+                speed = ypos;
+                radius = 0;
+            } else if(abs(ypos) < abs(xpos)) {
+                speed = xpos;
+                radius = 1;
             }
-            printf("Joystick: x=%d y=%d\n", xpos, ypos);
-            movement(ypos * 3, xpos);
+
+            // use xpos and ypos to control the robot movement
+            movement(speed, radius);
         }
 
         // Case 3: phone data (has 'x', 'y', and 'z')
         else if (value.find("x") != std::string::npos && value.find("z") != std::string::npos) {
-            int x = 0, y = 0, z = 0;
-            try {
-                int x1 = value.find("x") + 5;
-                int x2 = value.find("'", x1);
-                x = stoi(value.substr(x1, x2 - x1));
+            int xpos = yVal(value);
+            int ypos = xVal(value);
 
-                int y1 = value.find("y") + 5;
-                int y2 = value.find("'", y1);
-                y = stoi(value.substr(y1, y2 - y1));
+            int speed = 0;
+            int radius = 0;
 
-                int z1 = value.find("z") + 5;
-                int z2 = value.find("'", z1);
-                z = stoi(value.substr(z1, z2 - z1));
-            } catch (...) {
+            if(abs(ypos) > abs(xpos)) {
+                speed = -ypos;
+                radius = 0;
+            } else if(abs(ypos) < abs(xpos)) {
+                speed = xpos;
+                radius = 1;
             }
-            printf("Phone: x=%d y=%d z=%d\n", x, y, z);
-            movement(y * 4, x);  // interpret phone tilt
+
+            printf("Speed: %d, Radius: %d\n", speed, radius);
+
+            // use the sensor data to control the robot movement
+            movement(speed, radius);
         }
     }
 }
@@ -119,20 +122,20 @@ int main() {
     std::thread t(read_socket);
     while (serialDataAvail(kobuki) != -1) {
         // Read the sensor data.
-        readData();
+        // readData();
 
-        // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
-        char status[10];
-        sprintf(status, "b%dc%dd%d", bumper, cliff, drop);
+        // // Construct an string data like 'b0c0d0', you can use "sprintf" function. You can also define your own data protocal.
+        // char status[10];
+        // sprintf(status, "b%dc%dd%d", bumper, cliff, drop);
 
-        // Send the sensor data through the socket
-        send(sock, status, sizeof(status), 0);
+        // // Send the sensor data through the socket
+        // send(sock, status, sizeof(status), 0);
 
-        // Clear the buffer
-        memset(buffer, 0, sizeof(buffer));
+        // // Clear the buffer
+        // memset(buffer, 0, sizeof(buffer));
 
-        // You can refer to the code in previous labs.
-        usleep(20000);
+        // // You can refer to the code in previous labs.
+        // usleep(20000);
     }
     serialClose(kobuki);
 
@@ -238,11 +241,32 @@ void readData() {
 }
 
 void processData(string value) {
-    printf(value);
+    printf("%s", value);
 }
 
-int speed(string value) {
+int joystick_x(string value) {
     int ind = value.find('x', 0) + 5;
+    int ind2 = value.find("\'", ind);
+    string index = value.substr(ind, ind2 - ind);
+    //printf("%s\n", index);
+    ind = -stoi(index);
+    if (ind > -20 && ind < 20) ind = 0;
+
+    return 3 * ind;
+}
+
+int joystick_y(string value) {
+    int ind0 = value.find('y', 0) + 5;
+    int ind = value.find("\',", ind0);
+    string index = value.substr(ind0, (ind - ind0));
+
+    ind = stoi(index);
+
+    return 3 * ind;
+}
+
+int yVal(string value) {
+    int ind = value.find('y', 0) + 5;
     int ind2 = value.find("\'", ind);
     string index = value.substr(ind, ind2 - ind);
     printf("%s\n", index);
@@ -252,22 +276,22 @@ int speed(string value) {
     if (ind < -50) ind = -50;
     if (ind > -20 && ind < 5) ind = 0;
 
-    return 10 * ind;
+    return 4 * ind;
 }
 
-int radius(string value) {
-    int ind0 = value.find('z', 0) + 5;
+int xVal(string value) {
+    int ind0 = value.find('x', 0) + 5;
     int ind = value.find("\',", ind0);
     string index = value.substr(ind0, (ind - ind0));
 
     ind = stoi(index);
     // cout<<ind<<endl;
-    if (ind >= 0 && ind <= 20) ind = 0;
-    if (ind >= 340 && ind <= 360) ind = 0;
-    if (ind >= 0 && ind <= 180) {
-        ind = ind * 2;
-    } else {
-        ind = (ind - 360) * 2;
-    }
-    return ind;
+    // if (ind >= 0 && ind <= 20) ind = 0;
+    // if (ind >= 340 && ind <= 360) ind = 0;
+    // if (ind >= 0 && ind <= 180) {
+    //     ind = ind * 2;
+    // } else {
+    //     ind = (ind - 360) * 2;
+    // }
+    return 4 * ind;
 }
