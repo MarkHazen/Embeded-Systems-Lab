@@ -10,7 +10,7 @@ server_address_1 = ('127.0.0.2', 8001)  # UDP for video
 sock_1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock_1.bind(server_address_1)
 
-server_address = ('127.0.0.1', 8001)    # TCP for control/data
+server_address = ('127.0.0.1', 8004)    # TCP for control/data
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(server_address)
 sock.listen(5)
@@ -141,8 +141,9 @@ def add_nav_links(response):
     return response
 
 if __name__ == "__main__":
-    t = Thread(target=launch_socket_server,args=(connection,))
+    t = Thread(target=launch_socket_server,args=(connection,address))
     t.daemon = True
     t.start()
 
-    app.run(debug=True, host=IP_Address, port=PORT, use_reloader=False)
+
+    app.run(debug=True, host=IP_Address, port=PORT, use_reloader=False,ssl_context='adhoc')

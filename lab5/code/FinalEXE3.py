@@ -20,7 +20,7 @@ sock_1.bind(server_address_1)
 
 #Find the IP Address of your device
 #Use the 'ifconfig' terminal command, the address should be in the format  "XX.XXX.XXX.XXX"
-IP_Address = '10.227.118.162'
+IP_Address = '10.227.121.126'
 PORT = 8080
 #Connect the *.html page to the server and run as the default page
 
